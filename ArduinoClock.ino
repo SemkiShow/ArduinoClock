@@ -55,6 +55,7 @@ void loop()
   {
     currentMode = NextMode();
     screenSaver = millis();
+    display.clear();
   }
   if (millis() < screenSaver)
   {
@@ -139,7 +140,7 @@ void ShowDay()
   switch (now.day)
     {
       case 1:
-        display.displayByte(0x70, 0x76, _o, _n);
+        display.displayByte(0x31, 0x37, _o, _n);
         break;
       case 2:
         display.displayByte(_t, _u, _E, _empty);
@@ -225,8 +226,7 @@ void Settings()
 {
   display.point(0);
   currentMenu = 0;
-  byte clock[] = {_C, _l, _o, _c};
-  display.displayByte(clock);
+  display.clear();
   
   while (true)
   {
@@ -239,33 +239,7 @@ void Settings()
       {
         currentMenu = 0;
       }
-      switch (currentMenu)
-      {
-        case 0:
-          byte clock[] = {_C, _l, _o, _c};
-          display.displayByte(clock);
-          break;
-        case 1:
-          byte date[] = {_d, _A, _t, _e};
-          display.displayByte(date);
-          break;
-        case 2:
-          byte year[] = {_Y, _e, _A, _r};
-          display.displayByte(year);
-          break;
-        case 3:
-          byte day[] = {_d, _A, _y, _empty};
-          display.displayByte(day);
-          break;
-        case 4:
-          byte brightness[] = {_b, _r, _i, _G};
-          display.displayByte(brightness);
-          break;
-        case 5:
-          byte alarm[] = {_A, _l, _A, _r};
-          display.displayByte(alarm);
-          break;
-      }
+      display.clear();
     }
 
     if (encoder.right())
@@ -275,37 +249,43 @@ void Settings()
       {
         currentMenu = 5;
       }
-      switch (currentMenu)
-      {
-        case 0:
-          byte clock[] = {_C, _l, _o, _c};
-          display.displayByte(clock);
-          break;
-        case 1:
-          byte date[] = {_d, _A, _t, _e};
-          display.displayByte(date);
-          break;
-        case 2:
-          byte year[] = {_Y, _e, _A, _r};
-          display.displayByte(year);
-          break;
-        case 3:
-          byte day[] = {_d, _A, _y, _empty};
-          display.displayByte(day);
-          break;
-        case 4:
-          byte brightness[] = {_b, _r, _i, _G};
-          display.displayByte(brightness);
-          break;
-        case 5:
-          byte alarm[] = {_A, _l, _A, _r};
-          display.displayByte(alarm);
-          break;
-      }
+      display.clear();
+    }
+
+    if (currentMenu == 0)
+    {
+      byte clock[] = {_C, _l, _o, _c};
+      display.displayByte(clock);
+    }
+    if (currentMenu == 1)
+    {
+      byte date[] = {_d, _A, _t, _e};
+      display.displayByte(date);
+    }
+    if (currentMenu == 2)
+    {
+      byte year[] = {_Y, _e, _A, _r};
+      display.displayByte(year);
+    }
+    if (currentMenu == 3)
+    {
+      byte day[] = {_d, _A, _y, _empty};
+      display.displayByte(day);
+    }
+    if (currentMenu == 4)
+    {
+      byte brightness[] = {_b, _r, _i, _G};
+      display.displayByte(brightness);
+    }
+    if (currentMenu == 5)
+    {
+      byte alarm[] = {_A, _l, _A, _r};
+      display.displayByte(alarm);
     }
 
     if (encoder.click())
     {
+      display.clear();
       switch (currentMenu)
       {
         case 0:
@@ -331,8 +311,11 @@ void Settings()
 
     if (encoder.hold())
     {
+      display.clear();
       break;
     }
+
+    Serial.println(currentMenu);
   }
 }
 
@@ -493,7 +476,7 @@ void Day()
     switch (now.day)
     {
       case 1:
-        display.displayByte(0x70, 0x76, _o, _n);
+        display.displayByte(0x31, 0x37, _o, _n);
         break;
       case 2:
         display.displayByte(_t, _u, _E, _empty);
@@ -557,8 +540,7 @@ void Alarm()
 {
   display.point(0);
   currentMenu = 0;
-  byte lightTime[] = {_L, _i, _G, _h};
-  display.displayByte(lightTime);
+  display.clear();
   
   while (true)
   {
@@ -571,53 +553,7 @@ void Alarm()
       {
         currentMenu = 0;
       }
-      switch (currentMenu)
-      {
-        case 0:
-          byte lightTime[] = {_L, _i, _G, _h};
-          display.displayByte(lightTime);
-          break;
-        case 1:
-          byte alarm1[] = {_1, _empty, _A, _l};
-          display.displayByte(alarm1);
-          break;
-        case 2:
-          byte alarm2[] = {_2, _empty, _A, _l};
-          display.displayByte(alarm2);
-          break;
-        case 3:
-          byte alarm3[] = {_3, _empty, _A, _l};
-          display.displayByte(alarm3);
-          break;
-        case 4:
-          byte alarm4[] = {_4, _empty, _A, _l};
-          display.displayByte(alarm4);
-          break;
-        case 5:
-          byte alarm5[] = {_5, _empty, _A, _l};
-          display.displayByte(alarm5);
-          break;
-        case 6:
-          byte alarm6[] = {_6, _empty, _A, _l};
-          display.displayByte(alarm6);
-          break;
-        case 7:
-          byte alarm7[] = {_7, _empty, _A, _l};
-          display.displayByte(alarm7);
-          break;
-        case 8:
-          byte alarm8[] = {_8, _empty, _A, _l};
-          display.displayByte(alarm8);
-          break;
-        case 9:
-          byte alarm9[] = {_9, _empty, _A, _l};
-          display.displayByte(alarm9);
-          break;
-        case 10:
-          byte alarm10[] = {_1, _0, _empty, _A};
-          display.displayByte(alarm10);
-          break;
-      }
+      display.clear();
     }
 
     if (encoder.right())
@@ -627,57 +563,68 @@ void Alarm()
       {
         currentMenu = 10;
       }
-      switch (currentMenu)
-      {
-        case 0:
-          byte lightTime[] = {_L, _i, _G, _h};
-          display.displayByte(lightTime);
-          break;
-        case 1:
-          byte alarm1[] = {_1, _empty, _A, _l};
-          display.displayByte(alarm1);
-          break;
-        case 2:
-          byte alarm2[] = {_2, _empty, _A, _l};
-          display.displayByte(alarm2);
-          break;
-        case 3:
-          byte alarm3[] = {_3, _empty, _A, _l};
-          display.displayByte(alarm3);
-          break;
-        case 4:
-          byte alarm4[] = {_4, _empty, _A, _l};
-          display.displayByte(alarm4);
-          break;
-        case 5:
-          byte alarm5[] = {_5, _empty, _A, _l};
-          display.displayByte(alarm5);
-          break;
-        case 6:
-          byte alarm6[] = {_6, _empty, _A, _l};
-          display.displayByte(alarm6);
-          break;
-        case 7:
-          byte alarm7[] = {_7, _empty, _A, _l};
-          display.displayByte(alarm7);
-          break;
-        case 8:
-          byte alarm8[] = {_8, _empty, _A, _l};
-          display.displayByte(alarm8);
-          break;
-        case 9:
-          byte alarm9[] = {_9, _empty, _A, _l};
-          display.displayByte(alarm9);
-          break;
-        case 10:
-          byte alarm10[] = {_1, _0, _empty, _A};
-          display.displayByte(alarm10);
-          break;
-      }
+      display.clear();
+    }
+
+    if (currentMenu == 0)
+    {
+      byte lightTime[] = {_L, _i, _G, _h};
+      display.displayByte(lightTime);
+    }
+    if (currentMenu == 1)
+    {
+      byte alarm1[] = {_1, _empty, _A, _l};
+      display.displayByte(alarm1);
+    }
+    if (currentMenu == 2)
+    {
+      byte alarm2[] = {_2, _empty, _A, _l};
+      display.displayByte(alarm2);
+    }
+    if (currentMenu == 3)
+    {
+      byte alarm3[] = {_3, _empty, _A, _l};
+      display.displayByte(alarm3);
+    }
+    if (currentMenu == 4)
+    {
+      byte alarm4[] = {_4, _empty, _A, _l};
+      display.displayByte(alarm4);
+    }
+    if (currentMenu == 5)
+    {
+      byte alarm5[] = {_5, _empty, _A, _l};
+      display.displayByte(alarm5);
+    }
+    if (currentMenu == 6)
+    {
+      byte alarm6[] = {_6, _empty, _A, _l};
+      display.displayByte(alarm6);
+    }
+    if (currentMenu == 7)
+    {
+      byte alarm7[] = {_7, _empty, _A, _l};
+      display.displayByte(alarm7);
+    }
+    if (currentMenu == 8)
+    {
+      byte alarm8[] = {_8, _empty, _A, _l};
+      display.displayByte(alarm8);
+    }
+    if (currentMenu == 9)
+    {
+      byte alarm9[] = {_9, _empty, _A, _l};
+      display.displayByte(alarm9);
+    }
+    if (currentMenu == 10)
+    {
+      byte alarm10[] = {_1, _0, _empty, _A};
+      display.displayByte(alarm10);
     }
 
     if (encoder.click())
     {
+      display.clear();
       switch (currentMenu)
       {
         case 0:
@@ -718,8 +665,11 @@ void Alarm()
 
     if (encoder.hold())
     {
+      display.clear();
       break;
     }
+
+    Serial.println(currentMenu);
   }
 
   EEPROM.put(0, lightTime);
@@ -758,6 +708,9 @@ void LightTime()
 
 void AlarmConfig(int alarmNumber)
 {
+  display.displayByte(_empty, _empty, _O, _n);
+  alarmTimes[alarmNumber - 1][0] = 1;
+
   while (true)
   {
     encoder.tick();
