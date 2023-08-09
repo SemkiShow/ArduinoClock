@@ -21,16 +21,23 @@ EncButton<EB_TICK, S1, S2, KEY> encoder;
 long screenSaver;
 int currentMode;
 
-//EEPROM
+//EEPROM & alarm
 #include <EEPROM.h>
 char alarmTimes[10][10];
 int lightTime;
+long alarmCheck;
+#define LIGHT 11
+#define MOTOR 12
+bool isLightOn, isMotorOn = false;
 
 int currentMenu;
 
 void setup() 
 {
   Serial.begin(9600);
+
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
   
   // Clock initialization  
   clock.begin();
@@ -45,6 +52,7 @@ void setup()
   EEPROM.get(sizeof(int), alarmTimes);
 
   screenSaver = millis();
+  alarmCheck = millis();
   currentMode = 0;
   SwitchMode();
 }
@@ -63,11 +71,67 @@ void loop()
   }
   SwitchMode();
 
+  if (millis() - alarmCheck > 60000)
+  {
+    for (int i = 0; i < 10; i++)
+    {
+      // Alarm times init
+      int deltaAlarmHour;
+      int deltaAlarmMinute;
+      if (alarmTimes[i][2] - lightTime < 0)
+      {
+        if (alarmTimes[i][1] - clock.getHours() == 1 || (alarmTimes[i][1] == 0 && clock.getHours() == 23))
+        {
+          deltaAlarmHours = 0;
+          deltaAlarmMinutes = 60 - alarmTimes[i][1];
+        }
+      }
+      else
+      {
+        deltaAlarmHours = alarmTimes[i][1] - clock.getHours();
+        deltaAlarmMinutes = alarmTimes[i][2] - clock.getMinutes();
+      }
+
+      // Light on check
+      if (deltaAlarmHours == 0 && alarmTimes[i][0] == 1 && deltaAlarmMinutes < lightTime + 1 && alarmTimes[i][clock.getDay() + 2] == 1)
+      {
+        if (deltaAlarmMinutes < lightTime + 1)
+        {
+          analogWrite(LIGHT, 255 / (lightTime / 2 * 60));
+        }
+
+        if (deltaAlarmMinutes < lightTime / 2 + 1)
+        {
+          digitalWrite(LIGHT, HIGH);
+        }
+
+        isLightOn = true;
+      }
+
+      // Alarm (motor) on check
+      if (deltaAlarmMinutes <= 0 && alarmTimes[i][clock.getDay() + 2] == 1)
+      {
+        digitalWrite(MOTOR, HIGH);
+
+        isMotorOn = true;
+      }
+    }
+  }
+
   encoder.tick();
 
-  if (encoder.click())
+  if (encoder.click() && !isLightOn && !isMotorOn)
   {
     Settings();
+  }
+
+  if (encoder.click() && (isMotorOn || isLightOn))
+  {
+    digitalWrite(MOTOR, LOW);
+    digitalWrite(LIGHT, LOW);
+
+    isMotorOn = false;
+    isLightOn = false;
   }
 
   delay(1);
