@@ -24,7 +24,7 @@ int currentMode;
 //EEPROM & alarm
 #include <EEPROM.h>
 char alarmTimes[10][10];
-int lightTime;
+int lightTime = 20;
 long alarmCheck;
 #define LIGHT 11
 #define MOTOR 12
@@ -48,8 +48,7 @@ void setup()
   display.clear();
   display.brightness(1);
 
-  EEPROM.get(0, lightTime);
-  EEPROM.get(sizeof(int), alarmTimes);
+  EEPROM.get(0, alarmTimes);
 
   screenSaver = millis();
   alarmCheck = millis();
@@ -59,11 +58,16 @@ void setup()
 
 void loop()
 {
-  if (millis() - screenSaver > 500)
+  if (millis() - screenSaver > 500 && !isLightOn)
   {
     currentMode = NextMode();
     screenSaver = millis();
     display.clear();
+  }
+  else
+  {
+    display.clear();
+    display.displayByte(_A, _l, _A, _r);
   }
   if (millis() < screenSaver)
   {
@@ -71,13 +75,14 @@ void loop()
   }
   SwitchMode();
 
+  // Alarm check
   if (millis() - alarmCheck > 60000)
   {
     for (int i = 0; i < 10; i++)
     {
       // Alarm times init
-      int deltaAlarmHour;
-      int deltaAlarmMinute;
+      int deltaAlarmHours;
+      int deltaAlarmMinutes;
       if (alarmTimes[i][2] - lightTime < 0)
       {
         if (alarmTimes[i][1] - clock.getHours() == 1 || (alarmTimes[i][1] == 0 && clock.getHours() == 23))
@@ -120,7 +125,7 @@ void loop()
 
   encoder.tick();
 
-  if (encoder.click() && !isLightOn && !isMotorOn)
+  if (encoder.click() && !isLightOn)
   {
     Settings();
   }
@@ -132,6 +137,58 @@ void loop()
 
     isMotorOn = false;
     isLightOn = false;
+  }
+
+  if (encoder.hold())
+  {
+    display.clear();
+    display.displayByte(_r, _S, _t, _empty);
+
+    while (true)
+    {
+      encoder.tick();
+
+      if (encoder.click())
+      {
+        lightTime = 20;
+        break;
+      }
+
+      if (encoder.hold())
+      {
+        break;
+      }
+    }
+  }
+
+  if (encoder.left())
+  {
+    int alarmMinute = clock.getMinutes() + alarmTime;
+    int deltaAlarmMinutes = clock.getMinutes() - alarmMinute;
+
+    // Light on check
+    if (deltaAlarmMinutes < lightTime + 1)
+    {
+      if (deltaAlarmMinutes < lightTime + 1)
+      {
+        analogWrite(LIGHT, 255 / (lightTime / 2 * 60));
+      }
+
+      if (deltaAlarmMinutes < lightTime / 2 + 1)
+      {
+        digitalWrite(LIGHT, HIGH);
+      }
+
+      isLightOn = true;
+    }
+
+    // Alarm (motor) on check
+    if (deltaAlarmMinutes <= 0)
+    {
+      digitalWrite(MOTOR, HIGH);
+
+      isMotorOn = true;
+    }
   }
 
   delay(1);
@@ -736,8 +793,7 @@ void Alarm()
     Serial.println(currentMenu);
   }
 
-  EEPROM.put(0, lightTime);
-  EEPROM.put(sizeof(int), alarmTimes);
+  EEPROM.put(0, alarmTimes);
   Settings();
 }
 
